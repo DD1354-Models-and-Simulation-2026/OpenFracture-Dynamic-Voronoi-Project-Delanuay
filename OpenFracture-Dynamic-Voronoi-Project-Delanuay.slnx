@@ -1,0 +1,6 @@
+﻿<Solution>
+  <Project Path="OpenFracture.Editor.csproj" />
+  <Project Path="Assembly-CSharp-firstpass.csproj" />
+  <Project Path="RuntimeAssembly.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+</Solution>

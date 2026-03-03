@@ -95,7 +95,7 @@ namespace GK {
 		}
 
 		void OnCollisionEnter(Collision coll) {
-			if (age > 5 && coll.impactForceSum.magnitude > MinImpactToBreak) {
+			if (age > 5 && coll.impulse.magnitude > MinImpactToBreak) {
 				var pnt = coll.contacts[0].point;
 				Break((Vector2)transform.InverseTransformPoint(pnt));
 			}
