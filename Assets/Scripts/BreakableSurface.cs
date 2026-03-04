@@ -117,7 +117,7 @@ namespace GK {
 				var calc = new VoronoiCalculator();
 				var clip = new VoronoiClipper();
 
-				var sites = new Vector2[10];
+				var sites = new Vector2[50];
 
 				for (int i = 0; i < sites.Length; i++) {
 					var dist = Mathf.Abs(NormalizedRandom(0.5f, 1.0f/2.0f));
