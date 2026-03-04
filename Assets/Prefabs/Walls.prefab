@@ -15,7 +15,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7426896988342108018
 Transform:
   m_ObjectHideFlags: 0
@@ -4115,9 +4115,9 @@ GameObject:
   - component: {fileID: 5011757536869614944}
   - component: {fileID: 4129315563673123974}
   - component: {fileID: 2679475831497151442}
-  - component: {fileID: 5445412840310994328}
   - component: {fileID: 5525909259912383541}
   - component: {fileID: 448682832359920962}
+  - component: {fileID: 7118946262020468952}
   m_Layer: 0
   m_Name: Wall
   m_TagString: Untagged
@@ -4197,22 +4197,6 @@ MeshRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5445412840310994328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8159886891937714933}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 71bcc7f41880346acb0bdecf6340f3cd, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Polygon: []
-  Thickness: 1
-  MinBreakArea: 0.1
-  MinImpactToBreak: 5
 --- !u!54 &5525909259912383541
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -4262,6 +4246,47 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+--- !u!114 &7118946262020468952
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8159886891937714933}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91fc9178a0b0c3d4bb8b6d91b16d9893, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: RuntimeAssembly::Fracture
+  triggerOptions:
+    triggerType: 0
+    minimumCollisionForce: 0
+    filterCollisionsByTag: 1
+    triggerAllowedTags:
+    - 
+    triggerKey: 0
+  fractureOptions:
+    fragmentCount: 10
+    xAxis: 1
+    yAxis: 1
+    zAxis: 1
+    detectFloatingFragments: 0
+    asynchronous: 0
+    insideMaterial: {fileID: 0}
+    textureScale: {x: 1, y: 1}
+    textureOffset: {x: 0, y: 0}
+  refractureOptions:
+    enableRefracturing: 0
+    maxRefractureCount: 1
+    invokeCallbacks: 0
+  callbackOptions:
+    onFracture:
+      m_PersistentCalls:
+        m_Calls: []
+    onCompleted:
+      m_PersistentCalls:
+        m_Calls: []
+  currentRefractureCount: 0
 --- !u!1 &8225759088383883575
 GameObject:
   m_ObjectHideFlags: 0
@@ -4277,7 +4302,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1691768896809233370
 Transform:
   m_ObjectHideFlags: 0

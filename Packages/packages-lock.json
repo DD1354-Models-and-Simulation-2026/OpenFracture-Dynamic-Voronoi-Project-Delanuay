@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "com.dgreenheck.openfracture": {
-      "version": "file:C:/Skola/Skolarbete/Inl/KTH/DD1354/OpenFracture-main",
+      "version": "file:C:/Users/noor5/Downloads/OpenFracture-main/OpenFracture-main",
       "depth": 0,
       "source": "local",
       "dependencies": {
