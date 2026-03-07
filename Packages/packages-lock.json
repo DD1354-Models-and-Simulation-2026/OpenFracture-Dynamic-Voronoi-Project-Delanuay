@@ -1,13 +1,14 @@
 {
   "dependencies": {
     "com.dgreenheck.openfracture": {
-      "version": "file:C:/Users/Johan/Documents/Models and Simulation - DD1354/Project/OpenFracture-Dynamic-Voronoi-Project",
+      "version": "https://github.com/DD1354-Models-and-Simulation-2026/OpenFracture-Dynamic-Voronoi-Project.git",
       "depth": 0,
-      "source": "local",
+      "source": "git",
       "dependencies": {
         "com.unity.test-framework": "1.1.30",
         "com.unity.testtools.codecoverage": "1.0.1"
-      }
+      },
+      "hash": "6d0ddff64173193f024638c2de2dbeb8a2525965"
     },
     "com.unity.2d.sprite": {
       "version": "1.0.0",
@@ -159,12 +160,12 @@
       }
     },
     "com.unity.testtools.codecoverage": {
-      "version": "1.3.0",
+      "version": "1.2.7",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.test-framework": "1.4.5",
-        "com.unity.settings-manager": "2.0.0"
+        "com.unity.test-framework": "1.0.16",
+        "com.unity.settings-manager": "1.0.1"
       },
       "url": "https://packages.unity.com"
     },

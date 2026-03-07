@@ -26,6 +26,7 @@ using UnityEngine;
 
 namespace GK {
 	public class BreakableSurface : MonoBehaviour {
+		const float BoundaryEpsilon = 0.0001f;
 
 		public MeshFilter Filter     { get; private set; }
 		public MeshRenderer Renderer { get; private set; }
@@ -36,12 +37,92 @@ namespace GK {
 		public float Thickness = 1.0f;
 		public float MinBreakArea = 0.01f;
 		public float MinImpactToBreak = 50.0f;
+		public float ImpactRadius = 0.5f;
 
 		float _Area = -1.0f;
 
 		int age;
 
-		public float Area {
+		private enum ShardCategory {
+			Outside,
+			Inside,
+			Mixed
+		}
+
+		private struct SheetPiece {
+			public List<Vector2> Polygon;
+			public ShardCategory Category;
+
+			public SheetPiece(List<Vector2> polygon, ShardCategory category) {
+				Polygon = polygon;
+				Category = category;
+			}
+		}
+
+		private ShardCategory CategorizeShard(Vector2 impactPos, float radius, IList<Vector2> polygon) {
+			if (polygon == null || polygon.Count < 3 || radius <= 0f) {
+				return ShardCategory.Outside;
+			}
+
+			int insideCount = 0;
+			float radiusSq = radius * radius;
+
+			for (int i = 0; i < polygon.Count; i++) {
+				if ((polygon[i] - impactPos).sqrMagnitude <= radiusSq) {
+					insideCount++;
+				}
+			}
+			
+
+			int n = polygon.Count;
+
+			if (insideCount >= n - 1) {
+				return ShardCategory.Inside;
+			}
+
+			if (insideCount > 0) {
+				return ShardCategory.Mixed;
+			}
+
+			
+
+			return ShardCategory.Outside;
+		}
+
+		static bool PointInPolygon(Vector2 p, IList<Vector2> polygon) {
+			bool inside = false;
+
+			for (int i = 0, j = polygon.Count - 1; i < polygon.Count; j = i++) {
+				Vector2 pi = polygon[i];
+				Vector2 pj = polygon[j];
+
+				bool intersect =
+					((pi.y > p.y) != (pj.y > p.y)) &&
+					(p.x < (pj.x - pi.x) * (p.y - pi.y) / (pj.y - pi.y + Mathf.Epsilon) + pi.x);
+
+				if (intersect) {
+					inside = !inside;
+				}
+			}
+
+			return inside;
+		}
+
+		static bool SegmentIntersectsCircle(Vector2 a, Vector2 b, Vector2 center, float radius) {
+			Vector2 ab = b - a;
+			Vector2 ac = center - a;
+
+			float abLenSq = ab.sqrMagnitude;
+			if (abLenSq <= Mathf.Epsilon) {
+				return (a - center).sqrMagnitude <= radius * radius;
+			}
+
+			float t = Mathf.Clamp01(Vector2.Dot(ac, ab) / abLenSq);
+			Vector2 closest = a + t * ab;
+
+			return (closest - center).sqrMagnitude <= radius * radius;
+		}
+				public float Area {
 			get {
 				if (_Area < 0.0f) {
 					_Area = Geom.Area(Polygon);
@@ -111,134 +192,354 @@ namespace GK {
 			return mean + stddev * randStdNormal;
 		}
 
+		static Vector2[] GenerateImpactSites(Vector2 center, float impactRadius) {
+			var sites = new List<Vector2>();
+
+			// Sparse center
+			AddRing(sites, center, impactRadius * 0.25f, 4, impactRadius * 0.03f);
+
+			// Dense fracture band
+			AddRing(sites, center, impactRadius * 0.70f, 14, impactRadius * 0.05f);
+
+			// Support ring
+			AddRing(sites, center, impactRadius * 1.20f, 10, impactRadius * 0.06f);
+
+			// Slightly wider outer structure
+			AddRing(sites, center, impactRadius * 1.75f, 8, impactRadius * 0.08f);
+
+			return sites.ToArray();
+		}
+
+		static void AddRing(List<Vector2> sites, Vector2 center, float radius, int count, float jitter) {
+			float angleOffset = Random.value * Mathf.PI * 2f;
+
+			for (int i = 0; i < count; i++) {
+				float angle = angleOffset + (i / (float)count) * Mathf.PI * 2f;
+				float r = radius + Random.Range(-jitter, jitter);
+
+				sites.Add(center + new Vector2(
+					Mathf.Cos(angle) * r,
+					Mathf.Sin(angle) * r
+				));
+			}
+		}
+
+
+		
+
 		public void Break(Vector2 position) {
 			var area = Area;
 			if (area > MinBreakArea) {
+				Debug.Log($"[Break] Impact at {position}, ImpactRadius={ImpactRadius}, Area={area:F3}");
+				var outerPolygon = new List<Vector2>(Polygon);
+
 				var calc = new VoronoiCalculator();
 				var clip = new VoronoiClipper();
-
-				var sites = new Vector2[50];
-
+				var sites = GenerateImpactSites(position, ImpactRadius);
+//KOMMENTERA BORT SEN NÄR GenerateImpactSites() ÄR KLAR
 				for (int i = 0; i < sites.Length; i++) {
-					var dist = Mathf.Abs(NormalizedRandom(0.5f, 1.0f/2.0f));
-					var angle = 2.0f * Mathf.PI * Random.value;
+					float dist = Mathf.Abs(NormalizedRandom(0.9f, 0.45f)) * ImpactRadius;
+					dist = Mathf.Clamp(dist, ImpactRadius * 0.15f, ImpactRadius * 2.25f);
+
+					float angle = 2.0f * Mathf.PI * Random.value;
 
 					sites[i] = position + new Vector2(
-							dist * Mathf.Cos(angle),
-							dist * Mathf.Sin(angle));
+						dist * Mathf.Cos(angle),
+						dist * Mathf.Sin(angle)
+					);
 				}
-
+//HIT
 				var diagram = calc.CalculateDiagram(sites);
 
 				var clipped = new List<Vector2>();
+				var remainingPieces = new List<SheetPiece>();
+				float remainingArea = 0.0f;
+				int emptyCellCount = 0;
+				int tooSmallCellCount = 0;
+				int processedCellCount = 0;
+
+				int insideFragmentCount = 0;
+				int outsideFragmentCount = 0;
+				int mixedFragmentCount = 0;
 
 				for (int i = 0; i < sites.Length; i++) {
 					clip.ClipSite(diagram, Polygon, i, ref clipped);
 
-					if (clipped.Count > 0) {
-						var newGo = Instantiate(gameObject, transform.parent);
+					if (clipped.Count == 0) {
+						emptyCellCount++;
+						continue;
+					}
 
-						newGo.transform.localPosition = transform.localPosition;
-						newGo.transform.localRotation = transform.localRotation;
+					if (clipped.Count < 3) {
+						emptyCellCount++;
+						Debug.Log($"Degenerate cell {i}: verts={clipped.Count}");
+						continue;
+					}
 
-						var bs = newGo.GetComponent<BreakableSurface>();
+					var childArea = Mathf.Abs(Geom.Area(clipped));
+					if (childArea <= MinBreakArea) {
+						tooSmallCellCount++;
+						Debug.Log($"Too small cell {i}: area={childArea:F4}, verts={clipped.Count}");
+						continue;
+					}
 
-						bs.Thickness = Thickness;
-						bs.Polygon.Clear();
-						bs.Polygon.AddRange(clipped);
+					processedCellCount++;
+					var category = CategorizeShard(position, ImpactRadius, clipped);
+					Debug.Log($"Cell {i}: area={childArea:F4}, verts={clipped.Count}, category={category}");
 
-						var childArea = bs.Area;
+					switch (category) {
+						case ShardCategory.Inside:
+							insideFragmentCount++;
+							CreateShardFragment(clipped, area, childArea);
+							break;
 
-						var rb = bs.GetComponent<Rigidbody>();
+						case ShardCategory.Outside:
+							outsideFragmentCount++;
+							remainingArea += childArea;
+							remainingPieces.Add(new SheetPiece(new List<Vector2>(clipped), ShardCategory.Outside));
+							break;
 
-						rb.mass = Rigidbody.mass * (childArea / area);
+						case ShardCategory.Mixed:
+							mixedFragmentCount++;
+							remainingArea += childArea;
+							remainingPieces.Add(new SheetPiece(new List<Vector2>(clipped), ShardCategory.Mixed));
+							break;
 					}
 				}
 
-				gameObject.active = false;
+				if (remainingPieces.Count > 0) {
+					Debug.Log($"CreateRemainingSheet input: outside={outsideFragmentCount}, mixed={mixedFragmentCount}");
+					CreateRemainingSheet(remainingPieces, area, remainingArea, position, ImpactRadius, outerPolygon);
+				}
+
+				Debug.Log($"[Step 6] Fragments by category: {insideFragmentCount} Inside, {outsideFragmentCount} Outside, {mixedFragmentCount} Mixed");
+				Debug.Log($"[Step 8] Remaining sheet merged from {remainingPieces.Count} attached cells");
+				Debug.Log($"Cells summary: processed={processedCellCount}, empty={emptyCellCount}, tooSmall={tooSmallCellCount}");
+
 				Destroy(gameObject);
 			}
 		}
+		
+		void CreateShardFragment(List<Vector2> fragmentPolygon, float totalArea, float childArea) {
+			var newGo = Instantiate(gameObject, transform.parent);
+			newGo.transform.localPosition = transform.localPosition;
+			newGo.transform.localRotation = transform.localRotation;
+
+			var bs = newGo.GetComponent<BreakableSurface>();
+			bs.Thickness = Thickness;
+			bs.Polygon.Clear();
+			bs.Polygon.AddRange(fragmentPolygon);
+
+			var rb = bs.GetComponent<Rigidbody>();
+			rb.mass = Rigidbody.mass * (childArea / totalArea);
+		}
+
+		void CreateRemainingSheet(List<SheetPiece> pieces, float totalArea, float remainingArea, Vector2 impactCenter, float impactRadius, List<Vector2> outerPolygon) {
+			var newGo = Instantiate(gameObject, transform.parent);
+			newGo.transform.localPosition = transform.localPosition;
+			newGo.transform.localRotation = transform.localRotation;
+
+			var bs = newGo.GetComponent<BreakableSurface>();
+			bs.enabled = false;
+
+			var filter = newGo.GetComponent<MeshFilter>();
+			var collider = newGo.GetComponent<MeshCollider>();
+			var rb = newGo.GetComponent<Rigidbody>();
+
+			var combined = MeshFromPieces(pieces, Thickness, impactCenter, impactRadius, outerPolygon);
+			filter.sharedMesh = combined;
+			collider.sharedMesh = combined;
+			collider.convex = false;
+			rb.isKinematic = true;
+			rb.useGravity = false;
+			rb.mass = Rigidbody.mass * (remainingArea / totalArea);
+		}
+
+		static Mesh MeshFromPieces(List<SheetPiece> pieces, float thickness, Vector2 impactCenter, float impactRadius, IList<Vector2> outerPolygon) {
+			var combined = new Mesh();
+			if (pieces.Count == 0) {
+				return combined;
+			}
+
+			var combine = new CombineInstance[pieces.Count];
+			for (int i = 0; i < pieces.Count; i++) {
+				var partMesh = MeshFromPolygon(
+					pieces[i].Polygon,
+					thickness,
+					impactCenter,
+					impactRadius,
+					outerPolygon,
+					pieces[i].Category
+				);
+				combine[i].mesh = partMesh;
+				combine[i].transform = Matrix4x4.identity;
+			}
+
+			combined.CombineMeshes(combine, true, false);
+
+			for (int i = 0; i < combine.Length; i++) {
+				if (combine[i].mesh != null) {
+					Destroy(combine[i].mesh);
+				}
+			}
+
+			return combined;
+		}
 
 		static Mesh MeshFromPolygon(List<Vector2> polygon, float thickness) {
+			return MeshFromPolygon(polygon, thickness, Vector2.zero, -1.0f, null, ShardCategory.Inside);
+		}
+
+		static Mesh MeshFromPolygon(List<Vector2> polygon, float thickness, Vector2 impactCenter, float impactRadius, IList<Vector2> outerPolygon, ShardCategory category) {
 			var count = polygon.Count;
-			// TODO: cache these things to avoid garbage
-			var verts = new Vector3[6 * count];
-			var norms = new Vector3[6 * count];
-			var tris = new int[3 * (4 * count - 4)];
+			var verts = new List<Vector3>(6 * count);
+			var norms = new List<Vector3>(6 * count);
+			var tris = new List<int>(3 * (4 * count - 4));
 			// TODO: add UVs
 
-			var vi = 0;
-			var ni = 0;
-			var ti = 0;
+			bool useImpactFiltering = impactRadius >= 0.0f && outerPolygon != null;
 
 			var ext = 0.5f * thickness;
 
 			// Top
+			var topStart = verts.Count;
 			for (int i = 0; i < count; i++) {
-				verts[vi++] = new Vector3(polygon[i].x, polygon[i].y, ext);
-				norms[ni++] = Vector3.forward;
+				verts.Add(new Vector3(polygon[i].x, polygon[i].y, ext));
+				norms.Add(Vector3.forward);
 			}
 
 			// Bottom
+			var bottomStart = verts.Count;
 			for (int i = 0; i < count; i++) {
-				verts[vi++] = new Vector3(polygon[i].x, polygon[i].y, -ext);
-				norms[ni++] = Vector3.back;
-			}
-
-			// Sides
-			for (int i = 0; i < count; i++) {
-				var iNext = i == count - 1 ? 0 : i + 1;
-
-				verts[vi++] = new Vector3(polygon[i].x, polygon[i].y, ext);
-				verts[vi++] = new Vector3(polygon[i].x, polygon[i].y, -ext);
-				verts[vi++] = new Vector3(polygon[iNext].x, polygon[iNext].y, -ext);
-				verts[vi++] = new Vector3(polygon[iNext].x, polygon[iNext].y, ext);
-
-				var norm = Vector3.Cross(polygon[iNext] - polygon[i], Vector3.forward).normalized;
-
-				norms[ni++] = norm;
-				norms[ni++] = norm;
-				norms[ni++] = norm;
-				norms[ni++] = norm;
+				verts.Add(new Vector3(polygon[i].x, polygon[i].y, -ext));
+				norms.Add(Vector3.back);
 			}
 
 
 			for (int vert = 2; vert < count; vert++) {
-				tris[ti++] = 0;
-				tris[ti++] = vert - 1;
-				tris[ti++] = vert;
+				tris.Add(topStart);
+				tris.Add(topStart + vert - 1);
+				tris.Add(topStart + vert);
 			}
 
 			for (int vert = 2; vert < count; vert++) {
-				tris[ti++] = count;
-				tris[ti++] = count + vert;
-				tris[ti++] = count + vert - 1;
+				tris.Add(bottomStart);
+				tris.Add(bottomStart + vert);
+				tris.Add(bottomStart + vert - 1);
 			}
 
+			// Sides (conditionally generated for reconstructed sheet)
+			int generatedWallCount = 0;
 			for (int vert = 0; vert < count; vert++) {
-				var si = 2*count + 4*vert;
+				var iNext = vert == count - 1 ? 0 : vert + 1;
+				var a = polygon[vert];
+				var b = polygon[iNext];
 
-				tris[ti++] = si;
-				tris[ti++] = si + 1;
-				tris[ti++] = si + 2;
+				bool generateWall = true;
+				if (useImpactFiltering) {
+					bool onOuterBoundary = EdgeOnOuterBoundary(a, b, outerPolygon, BoundaryEpsilon);
+					bool aInside = VertexInsideImpact(a, impactCenter, impactRadius);
+					bool bInside = VertexInsideImpact(b, impactCenter, impactRadius);
 
-				tris[ti++] = si;
-				tris[ti++] = si + 2;
-				tris[ti++] = si + 3;
+					switch (category) {
+						case ShardCategory.Outside:
+							generateWall = onOuterBoundary;
+							break;
+
+						case ShardCategory.Mixed:
+							generateWall = onOuterBoundary || aInside || bInside;
+							break;
+
+						default:
+							generateWall = true;
+							break;
+					}
+				}
+
+				if (!generateWall) {
+					continue;
+				}
+
+				var si = verts.Count;
+				verts.Add(new Vector3(a.x, a.y, ext));
+				verts.Add(new Vector3(a.x, a.y, -ext));
+				verts.Add(new Vector3(b.x, b.y, -ext));
+				verts.Add(new Vector3(b.x, b.y, ext));
+
+				var norm = Vector3.Cross(b - a, Vector3.forward).normalized;
+				norms.Add(norm);
+				norms.Add(norm);
+				norms.Add(norm);
+				norms.Add(norm);
+
+				tris.Add(si);
+				tris.Add(si + 1);
+				tris.Add(si + 2);
+				tris.Add(si);
+				tris.Add(si + 2);
+				tris.Add(si + 3);
+				generatedWallCount++;
 			}
 
-			Debug.Assert(ti == tris.Length);
-			Debug.Assert(vi == verts.Length);
+			Debug.Log($"MeshFromPolygon category={category}, edges={count}, walls={generatedWallCount}");
 
 			var mesh = new Mesh();
 
-
-			mesh.vertices = verts;
-			mesh.triangles = tris;
-			mesh.normals = norms;
+			mesh.SetVertices(verts);
+			mesh.SetTriangles(tris, 0);
+			mesh.SetNormals(norms);
 
 			return mesh;
+		}
+
+		static bool VertexInsideImpact(Vector2 vertex, Vector2 impactCenter, float impactRadius) {
+			var dx = vertex.x - impactCenter.x;
+			var dy = vertex.y - impactCenter.y;
+			return dx * dx + dy * dy <= impactRadius * impactRadius;
+		}
+
+		static bool EdgeOnOuterBoundary(Vector2 a, Vector2 b, IList<Vector2> outerPolygon, float epsilon) {
+			if (outerPolygon == null || outerPolygon.Count < 2) {
+				return false;
+			}
+
+			for (int i = 0; i < outerPolygon.Count; i++) {
+				int j = (i == outerPolygon.Count - 1) ? 0 : i + 1;
+				Vector2 c = outerPolygon[i];
+				Vector2 d = outerPolygon[j];
+
+				if (PointOnSegment(a, c, d, epsilon) && PointOnSegment(b, c, d, epsilon)) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		static bool PointOnSegment(Vector2 p, Vector2 a, Vector2 b, float epsilon) {
+			Vector2 ab = b - a;
+			Vector2 ap = p - a;
+
+			float cross = ab.x * ap.y - ab.y * ap.x;
+			if (Mathf.Abs(cross) > epsilon) {
+				return false;
+			}
+
+			float dot = Vector2.Dot(ap, ab);
+			if (dot < -epsilon) {
+				return false;
+			}
+
+			float abLenSq = ab.sqrMagnitude;
+			if (dot > abLenSq + epsilon) {
+				return false;
+			}
+
+			return true;
+		}
+
+		static bool ApproximatelyEqual(Vector2 a, Vector2 b, float epsilon) {
+			return (a - b).sqrMagnitude <= epsilon * epsilon;
 		}
 	}
 }

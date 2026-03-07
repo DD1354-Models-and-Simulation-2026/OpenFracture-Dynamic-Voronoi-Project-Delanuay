@@ -488,6 +488,26 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: impactRadiusLogScale
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: ShowImpactRadiusDebug
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: impactRadiusLogScale
+      value: 3.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: ShowImpactRadiusDebug
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: m_LocalPosition.x
