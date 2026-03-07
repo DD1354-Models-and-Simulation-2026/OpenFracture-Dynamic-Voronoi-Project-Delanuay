@@ -225,6 +225,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Walls OpenFracture
       objectReference: {fileID: 0}
+    - target: {fileID: 4186689460252452167, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: MinBreakArea
@@ -305,6 +310,62 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 2095715954}
   m_SourcePrefab: {fileID: 100100000, guid: c0234fbfd5593cc4294bc36f20231c12, type: 3}
+--- !u!1 &890847916 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8159886891937714933, guid: c0234fbfd5593cc4294bc36f20231c12,
+    type: 3}
+  m_PrefabInstance: {fileID: 1831467613}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &890847923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890847916}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d49fd8f63c506ef44a19d029ca58959d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GK.BreakableSurfaceImpactPainter
+  impactRadius: 0.4
+  impactDotColor: {r: 1, g: 0, b: 0, a: 1}
+  impactCircleColor: {r: 1, g: 0, b: 0, a: 1}
+  impactDotRadius: 0.03
+  impactCircleLineWidth: 0.01
+  impactCircleSegments: 96
+  drawSeeds: 1
+  seedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  seedRadius: 0.02
+  drawCells: 1
+  cellColor: {r: 0, g: 1, b: 1, a: 1}
+  cellLineWidth: 0.0075
+  seedPattern: 0
+  seedJitterFactor: 0.2
+  radialMean: 0.9
+  radialStdDev: 0.45
+  radialMinFactor: 0.15
+  radialMaxFactor: 2.25
+  minImpactToPaint: 0
+  minAgeFrames: 2
+  surfaceOffset: 0.002
+--- !u!114 &890847924
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 890847916}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71bcc7f41880346acb0bdecf6340f3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GK.BreakableSurface
+  Polygon: []
+  Thickness: 1
+  MinBreakArea: 0.01
+  MinImpactToBreak: 50
+  ImpactRadius: 0.5
 --- !u!1001 &1180939408
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -488,6 +549,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4186689460252452167, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: impactRadiusLogScale
@@ -497,6 +563,16 @@ PrefabInstance:
         type: 3}
       propertyPath: ShowImpactRadiusDebug
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: ImpactRadius
+      value: 0.69
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: MinBreakArea
+      value: 0.01
       objectReference: {fileID: 0}
     - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
@@ -759,6 +835,98 @@ CapsuleCollider:
   m_Height: 1
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1001 &1831467613
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1156149676792325787, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_Name
+      value: TestWall
+      objectReference: {fileID: 0}
+    - target: {fileID: 1958780143737156699, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5525909259912383541, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5525909259912383541, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.38
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 2.2108884
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -2.9587004
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7043246
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.709878
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: -90.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8159886891937714933, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 890847924}
+    - targetCorrespondingSourceObject: {fileID: 8159886891937714933, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 890847923}
+  m_SourcePrefab: {fileID: 100100000, guid: c0234fbfd5593cc4294bc36f20231c12, type: 3}
 --- !u!1 &2095715947 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2930068698099705219, guid: c0234fbfd5593cc4294bc36f20231c12,
@@ -785,7 +953,7 @@ MonoBehaviour:
     - Projectile
     triggerKey: 0
   fractureOptions:
-    fragmentCount: 10
+    fragmentCount: 50
     xAxis: 1
     yAxis: 1
     zAxis: 0
@@ -815,3 +983,4 @@ SceneRoots:
   - {fileID: 1259153147}
   - {fileID: 328033112}
   - {fileID: 1724925165}
+  - {fileID: 1831467613}
