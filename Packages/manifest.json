@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "com.dgreenheck.openfracture": "https://github.com/DD1354-Models-and-Simulation-2026/OpenFracture-Dynamic-Voronoi-Project.git",
+    "com.dgreenheck.openfracture": "file:C:/Users/Johan/Documents/Models and Simulation - DD1354/Project/OpenFracture-Dynamic-Voronoi-Project",
     "com.unity.2d.sprite": "1.0.0",
     "com.unity.2d.tilemap": "1.0.0",
     "com.unity.ads": "4.16.4",
@@ -13,6 +13,7 @@
     "com.unity.ide.vscode": "1.1.0",
     "com.unity.multiplayer.center": "1.0.1",
     "com.unity.purchasing": "4.14.2",
+    "com.unity.render-pipelines.universal": "17.3.0",
     "com.unity.test-framework": "1.6.0",
     "com.unity.timeline": "1.8.10",
     "com.unity.ugui": "2.0.0",

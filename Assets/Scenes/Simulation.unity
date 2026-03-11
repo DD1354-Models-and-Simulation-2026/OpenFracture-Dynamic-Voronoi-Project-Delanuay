@@ -225,6 +225,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Walls OpenFracture
       objectReference: {fileID: 0}
+    - target: {fileID: 2662522312935102616, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8cdec9ab91388ac47925d7bcd32c2d36, type: 2}
     - target: {fileID: 4186689460252452167, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: m_IsActive
@@ -424,6 +429,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6375313005010413478, guid: 67a4344ffc190364993d04ed69d6bd62,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 21ed9ec1e3da3e24fa1917305c8c5754, type: 2}
     - target: {fileID: 7642346270128689386, guid: 67a4344ffc190364993d04ed69d6bd62,
         type: 3}
       propertyPath: m_Name
@@ -444,6 +454,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1205062517}
   - component: {fileID: 1205062516}
+  - component: {fileID: 1205062518}
   m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
@@ -531,6 +542,35 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!114 &1205062518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1205062515}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 474bcb49853aa07438625e644c072ee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderPipelines.Universal.Runtime::UnityEngine.Rendering.Universal.UniversalAdditionalLightData
+  m_UsePipelineSettings: 1
+  m_AdditionalLightsShadowResolutionTier: 2
+  m_CustomShadowLayers: 0
+  m_LightCookieSize: {x: 1, y: 1}
+  m_LightCookieOffset: {x: 0, y: 0}
+  m_SoftShadowQuality: 0
+  m_RenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_ShadowRenderingLayersMask:
+    serializedVersion: 0
+    m_Bits: 1
+  m_Version: 4
+  m_LightLayerMask: 1
+  m_ShadowLayerMask: 1
+  m_RenderingLayers: 1
+  m_ShadowRenderingLayers: 1
 --- !u!1001 &1259153147
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -549,6 +589,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2662522312935102616, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8cdec9ab91388ac47925d7bcd32c2d36, type: 2}
     - target: {fileID: 4186689460252452167, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: m_IsActive
@@ -574,6 +619,11 @@ PrefabInstance:
       propertyPath: MinBreakArea
       value: 0.01
       objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: InnerCutMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: f4f112cd5a11456468ff76364c69496a, type: 2}
     - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: impactRadiusLogScale
@@ -853,6 +903,11 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2679475831497151442, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 8cdec9ab91388ac47925d7bcd32c2d36, type: 2}
     - target: {fileID: 5525909259912383541, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: m_UseGravity
@@ -959,7 +1014,7 @@ MonoBehaviour:
     zAxis: 0
     detectFloatingFragments: 0
     asynchronous: 0
-    insideMaterial: {fileID: 2100000, guid: 0e45b16ea35e64ed98334cc27dfa3dc6, type: 2}
+    insideMaterial: {fileID: 2100000, guid: f4f112cd5a11456468ff76364c69496a, type: 2}
     textureScale: {x: 1, y: 1}
     textureOffset: {x: 0, y: 0}
   refractureOptions:
