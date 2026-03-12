@@ -37,7 +37,29 @@ namespace GK {
 		public float Thickness = 1.0f;
 		public float MinBreakArea = 0.01f;
 		public float MinImpactToBreak = 50.0f;
+
+		[Header("Legacy / Default")]
 		public float ImpactRadius = 0.5f;
+
+		[Header("Impact Force Mapping")]
+		public float MaxImpactForce = 300.0f;
+
+		[Header("Dynamic Radius")]
+		public float MinImpactRadius = 0.20f;
+		public float MaxImpactRadius = 1.20f;
+
+		[Header("Dynamic Seed Counts")]
+		public int MinCenterSeeds = 2;
+		public int MaxCenterSeeds = 8;
+
+		public int MinBandSeeds = 6;
+		public int MaxBandSeeds = 20;
+
+		public int MinSupportSeeds = 4;
+		public int MaxSupportSeeds = 14;
+
+		public int MinOuterSeeds = 2;
+		public int MaxOuterSeeds = 10;
 
 		float _Area = -1.0f;
 
@@ -72,7 +94,6 @@ namespace GK {
 					insideCount++;
 				}
 			}
-			
 
 			int n = polygon.Count;
 
@@ -83,8 +104,6 @@ namespace GK {
 			if (insideCount > 0) {
 				return ShardCategory.Mixed;
 			}
-
-			
 
 			return ShardCategory.Outside;
 		}
@@ -122,7 +141,8 @@ namespace GK {
 
 			return (closest - center).sqrMagnitude <= radius * radius;
 		}
-				public float Area {
+
+		public float Area {
 			get {
 				if (_Area < 0.0f) {
 					_Area = Geom.Area(Polygon);
@@ -134,7 +154,6 @@ namespace GK {
 
 		void Start() {
 			age = 0;
-
 			Reload();
 		}
 
@@ -177,8 +196,14 @@ namespace GK {
 
 		void OnCollisionEnter(Collision coll) {
 			if (age > 5 && coll.impulse.magnitude > MinImpactToBreak) {
+				if (coll.contactCount == 0) {
+					return;
+				}
+
 				var pnt = coll.contacts[0].point;
-				Break((Vector2)transform.InverseTransformPoint(pnt));
+				float impactForce = coll.impulse.magnitude;
+
+				Break((Vector2)transform.InverseTransformPoint(pnt), impactForce);
 			}
 		}
 
@@ -192,25 +217,31 @@ namespace GK {
 			return mean + stddev * randStdNormal;
 		}
 
-		static Vector2[] GenerateImpactSites(Vector2 center, float impactRadius) {
+		Vector2[] GenerateImpactSites(Vector2 center, float impactRadius, float forceT) {
 			var sites = new List<Vector2>();
 
-			// Sparse center
-			AddRing(sites, center, impactRadius * 0.25f, 4, impactRadius * 0.03f);
+			int centerCount  = Mathf.RoundToInt(Mathf.Lerp(MinCenterSeeds,  MaxCenterSeeds,  forceT));
+			int bandCount    = Mathf.RoundToInt(Mathf.Lerp(MinBandSeeds,    MaxBandSeeds,    forceT));
+			int supportCount = Mathf.RoundToInt(Mathf.Lerp(MinSupportSeeds, MaxSupportSeeds, forceT));
+			int outerCount   = Mathf.RoundToInt(Mathf.Lerp(MinOuterSeeds,   MaxOuterSeeds,   forceT));
 
-			// Dense fracture band
-			AddRing(sites, center, impactRadius * 0.70f, 14, impactRadius * 0.05f);
+			// More seeds near the center, fewer further away.
+			AddRing(sites, center, impactRadius * 0.20f, centerCount,  impactRadius * 0.02f);
+			AddRing(sites, center, impactRadius * 0.55f, bandCount,    impactRadius * 0.04f);
+			AddRing(sites, center, impactRadius * 1.00f, supportCount, impactRadius * 0.06f);
+			AddRing(sites, center, impactRadius * 1.50f, outerCount,   impactRadius * 0.08f);
 
-			// Support ring
-			AddRing(sites, center, impactRadius * 1.20f, 10, impactRadius * 0.06f);
-
-			// Slightly wider outer structure
-			AddRing(sites, center, impactRadius * 1.75f, 8, impactRadius * 0.08f);
+			// Always include exact impact point as a seed.
+			sites.Add(center);
 
 			return sites.ToArray();
 		}
 
 		static void AddRing(List<Vector2> sites, Vector2 center, float radius, int count, float jitter) {
+			if (count <= 0) {
+				return;
+			}
+
 			float angleOffset = Random.value * Mathf.PI * 2f;
 
 			for (int i = 0; i < count; i++) {
@@ -224,31 +255,20 @@ namespace GK {
 			}
 		}
 
-
-		
-
-		public void Break(Vector2 position) {
+		public void Break(Vector2 position, float impactForce) {
 			var area = Area;
 			if (area > MinBreakArea) {
-				Debug.Log($"[Break] Impact at {position}, ImpactRadius={ImpactRadius}, Area={area:F3}");
+				float t = Mathf.InverseLerp(MinImpactToBreak, MaxImpactForce, impactForce);
+				float dynamicImpactRadius = Mathf.Lerp(MinImpactRadius, MaxImpactRadius, t);
+
+				Debug.Log($"[Break] Impact at {position}, Force={impactForce:F2}, Radius={dynamicImpactRadius:F2}, t={t:F2}, Area={area:F3}");
+
 				var outerPolygon = new List<Vector2>(Polygon);
 
 				var calc = new VoronoiCalculator();
 				var clip = new VoronoiClipper();
-				var sites = GenerateImpactSites(position, ImpactRadius);
-//KOMMENTERA BORT SEN NÄR GenerateImpactSites() ÄR KLAR
-				for (int i = 0; i < sites.Length; i++) {
-					float dist = Mathf.Abs(NormalizedRandom(0.9f, 0.45f)) * ImpactRadius;
-					dist = Mathf.Clamp(dist, ImpactRadius * 0.15f, ImpactRadius * 2.25f);
+				var sites = GenerateImpactSites(position, dynamicImpactRadius, t);
 
-					float angle = 2.0f * Mathf.PI * Random.value;
-
-					sites[i] = position + new Vector2(
-						dist * Mathf.Cos(angle),
-						dist * Mathf.Sin(angle)
-					);
-				}
-//HIT
 				var diagram = calc.CalculateDiagram(sites);
 
 				var clipped = new List<Vector2>();
@@ -284,7 +304,7 @@ namespace GK {
 					}
 
 					processedCellCount++;
-					var category = CategorizeShard(position, ImpactRadius, clipped);
+					var category = CategorizeShard(position, dynamicImpactRadius, clipped);
 					Debug.Log($"Cell {i}: area={childArea:F4}, verts={clipped.Count}, category={category}");
 
 					switch (category) {
@@ -309,7 +329,7 @@ namespace GK {
 
 				if (remainingPieces.Count > 0) {
 					Debug.Log($"CreateRemainingSheet input: outside={outsideFragmentCount}, mixed={mixedFragmentCount}");
-					CreateRemainingSheet(remainingPieces, area, remainingArea, position, ImpactRadius, outerPolygon);
+					CreateRemainingSheet(remainingPieces, area, remainingArea, position, dynamicImpactRadius, outerPolygon);
 				}
 
 				Debug.Log($"[Step 6] Fragments by category: {insideFragmentCount} Inside, {outsideFragmentCount} Outside, {mixedFragmentCount} Mixed");
@@ -319,7 +339,7 @@ namespace GK {
 				Destroy(gameObject);
 			}
 		}
-		
+
 		void CreateShardFragment(List<Vector2> fragmentPolygon, float totalArea, float childArea) {
 			var newGo = Instantiate(gameObject, transform.parent);
 			newGo.transform.localPosition = transform.localPosition;
@@ -414,7 +434,6 @@ namespace GK {
 				verts.Add(new Vector3(polygon[i].x, polygon[i].y, -ext));
 				norms.Add(Vector3.back);
 			}
-
 
 			for (int vert = 2; vert < count; vert++) {
 				tris.Add(topStart);
