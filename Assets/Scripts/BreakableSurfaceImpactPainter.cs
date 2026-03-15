@@ -351,8 +351,7 @@ namespace GK
 				ObservationRadius,
 				HardCoreDistance,
 				StraussGamma,
-				StraussMcmcSweeps,
-				StraussIncludeImpactCenter
+				StraussMcmcSweeps
 			);
         }
 

@@ -5,14 +5,15 @@ namespace GK
 {
     public static class ImpactSiteGenerator
     {
+        private const float FinalSafetyDistance = 0.001f;
+
         public static Vector2[] GenerateStraussImpactSites(
             Vector2 center,
             int targetCount,
             float observationRadius,
             float hardCoreDistance,
             float gamma,
-            int sweeps,
-            bool includeImpactCenter)
+            int sweeps)
         {
             float clampedObservationRadius = Mathf.Max(observationRadius, 0.01f);
             int clampedTargetCount = Mathf.Max(1, targetCount);
@@ -31,10 +32,11 @@ namespace GK
                 sweeps
             );
 
-            if (includeImpactCenter)
-            {
-                mhcpSites.Add(center);
-            }
+            // Safety cleanup pass to enforce minimum final spacing.
+            float finalDistance = Mathf.Max(clampedHardCoreDistance, FinalSafetyDistance);
+            mhcpSites = ApplyMatternHardCore(mhcpSites, finalDistance);
+
+
 
             Debug.Log($"Strauss Seeds created: {mhcpSites.Count}");
 

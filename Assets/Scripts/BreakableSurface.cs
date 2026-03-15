@@ -56,7 +56,6 @@ namespace GK {
 		public float HardCoreDistance = 0.15f;
 		public float ObservationRadius = 2f;
 		public int StraussMcmcSweeps = 30;
-		public bool StraussIncludeImpactCenter = false;
 
 		[Header("Crack Style")]
 		public bool TemperedGlassCrackAllEdges = false;
@@ -224,8 +223,7 @@ namespace GK {
 				ObservationRadius,
 				HardCoreDistance,
 				StraussGamma,
-				StraussMcmcSweeps,
-				StraussIncludeImpactCenter
+				StraussMcmcSweeps
 			);
 		}
 
