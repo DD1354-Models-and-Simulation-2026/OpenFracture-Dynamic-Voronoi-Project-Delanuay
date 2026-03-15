@@ -58,6 +58,9 @@ namespace GK {
 		public int StraussMcmcSweeps = 30;
 		public bool StraussIncludeImpactCenter = false;
 
+		[Header("Crack Style")]
+		public bool TemperedGlassCrackAllEdges = false;
+
 		float _Area = -1.0f;
 
 		int age;
@@ -354,7 +357,7 @@ namespace GK {
 			var collider = newGo.GetComponent<MeshCollider>();
 			var rb = newGo.GetComponent<Rigidbody>();
 
-			var combined = MeshFromPieces(pieces, Thickness, impactCenter, impactRadius, outerPolygon);
+			var combined = MeshFromPieces(pieces, Thickness, impactCenter, impactRadius, outerPolygon, TemperedGlassCrackAllEdges);
 			filter.sharedMesh = combined;
 			collider.sharedMesh = combined;
 			collider.convex = false;
@@ -363,7 +366,7 @@ namespace GK {
 			rb.mass = Rigidbody.mass * (remainingArea / totalArea);
 		}
 
-		static Mesh MeshFromPieces(List<SheetPiece> pieces, float thickness, Vector2 impactCenter, float impactRadius, IList<Vector2> outerPolygon) {
+		static Mesh MeshFromPieces(List<SheetPiece> pieces, float thickness, Vector2 impactCenter, float impactRadius, IList<Vector2> outerPolygon, bool forceCrackedEdges) {
 			var combined = new Mesh();
 			if (pieces.Count == 0) {
 				return combined;
@@ -377,7 +380,8 @@ namespace GK {
 					impactCenter,
 					impactRadius,
 					outerPolygon,
-					pieces[i].Category
+					pieces[i].Category,
+					forceCrackedEdges
 				);
 				combine[i].mesh = partMesh;
 				combine[i].transform = Matrix4x4.identity;
@@ -395,10 +399,10 @@ namespace GK {
 		}
 
 		static Mesh MeshFromPolygon(List<Vector2> polygon, float thickness) {
-			return MeshFromPolygon(polygon, thickness, Vector2.zero, -1.0f, null, ShardCategory.Inside);
+			return MeshFromPolygon(polygon, thickness, Vector2.zero, -1.0f, null, ShardCategory.Inside, false);
 		}
 
-		static Mesh MeshFromPolygon(List<Vector2> polygon, float thickness, Vector2 impactCenter, float impactRadius, IList<Vector2> outerPolygon, ShardCategory category) {
+		static Mesh MeshFromPolygon(List<Vector2> polygon, float thickness, Vector2 impactCenter, float impactRadius, IList<Vector2> outerPolygon, ShardCategory category, bool forceCrackedEdges) {
 			var count = polygon.Count;
 			var verts = new List<Vector3>(6 * count);
 			var norms = new List<Vector3>(6 * count);
@@ -442,24 +446,26 @@ namespace GK {
 				var a = polygon[vert];
 				var b = polygon[iNext];
 
-				bool generateWall = true;
+				bool generateWall = forceCrackedEdges;
 				if (useImpactFiltering) {
 					bool onOuterBoundary = EdgeOnOuterBoundary(a, b, outerPolygon, BoundaryEpsilon);
 					bool aInside = VertexInsideImpact(a, impactCenter, impactRadius);
 					bool bInside = VertexInsideImpact(b, impactCenter, impactRadius);
 
-					switch (category) {
-						case ShardCategory.Outside:
-							generateWall = onOuterBoundary;
-							break;
+					if (!forceCrackedEdges) {
+						switch (category) {
+							case ShardCategory.Outside:
+								generateWall = onOuterBoundary;
+								break;
 
-						case ShardCategory.Mixed:
-							generateWall = onOuterBoundary || aInside || bInside;
-							break;
+							case ShardCategory.Mixed:
+								generateWall = onOuterBoundary || aInside || bInside;
+								break;
 
-						default:
-							generateWall = true;
-							break;
+							default:
+								generateWall = true;
+								break;
+						}
 					}
 				}
 
