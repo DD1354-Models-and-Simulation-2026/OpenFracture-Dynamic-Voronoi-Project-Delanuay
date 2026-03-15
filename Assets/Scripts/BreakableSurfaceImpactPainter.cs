@@ -9,7 +9,8 @@ namespace GK
         private enum SeedPattern
         {
             RingJittered,
-            RadialScatter
+            RadialScatter,
+            StraussProcess
         }
 
         [Header("Impact")]
@@ -43,6 +44,14 @@ namespace GK
         [SerializeField] private float radialStdDev = 0.45f;
         [SerializeField] private float radialMinFactor = 0.15f;
         [SerializeField] private float radialMaxFactor = 2.25f;
+
+        [Header("Strauss Process Settings")]
+        [SerializeField] private int StraussTargetSeedCount = 100;
+        [SerializeField, Range(0f, 1f)] public float StraussGamma = 0.2f;
+		public float HardCoreDistance = 0.15f;
+		public float ObservationRadius = 2f;
+		public int StraussMcmcSweeps = 30;
+		public bool StraussIncludeImpactCenter = false;
 
         [Header("Collision Filter")]
         [SerializeField] private float minImpactToPaint = 0f;
@@ -288,6 +297,9 @@ namespace GK
         {
             switch (seedPattern)
             {
+                case SeedPattern.StraussProcess:
+                    return GenerateStraussProcessSites(position);
+
                 case SeedPattern.RadialScatter:
                     return GenerateRadialScatterSites(position, radius);
 
@@ -329,6 +341,19 @@ namespace GK
             }
 
             return sites;
+        }
+
+        private Vector2[] GenerateStraussProcessSites(Vector2 center)
+        {
+			return ImpactSiteGenerator.GenerateStraussImpactSites(
+				center,
+				StraussTargetSeedCount,
+				ObservationRadius,
+				HardCoreDistance,
+				StraussGamma,
+				StraussMcmcSweeps,
+				StraussIncludeImpactCenter
+			);
         }
 
         private static float NormalizedRandom(float mean, float stddev)

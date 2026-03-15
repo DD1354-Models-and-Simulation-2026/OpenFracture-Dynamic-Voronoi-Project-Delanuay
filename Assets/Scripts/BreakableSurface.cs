@@ -48,18 +48,15 @@ namespace GK {
 		public float MinImpactRadius = 0.20f;
 		public float MaxImpactRadius = 1.20f;
 
-		[Header("Dynamic Seed Counts")]
-		public int MinCenterSeeds = 2;
-		public int MaxCenterSeeds = 8;
+		[Header("Seed Count")]
+		public int SeedCount = 100;
 
-		public int MinBandSeeds = 6;
-		public int MaxBandSeeds = 20;
-
-		public int MinSupportSeeds = 4;
-		public int MaxSupportSeeds = 14;
-
-		public int MinOuterSeeds = 2;
-		public int MaxOuterSeeds = 10;
+		[Header("Strauss Process")]
+        [SerializeField, Range(0f, 1f)] public float StraussGamma = 0.2f;
+		public float HardCoreDistance = 0.15f;
+		public float ObservationRadius = 2f;
+		public int StraussMcmcSweeps = 30;
+		public bool StraussIncludeImpactCenter = false;
 
 		float _Area = -1.0f;
 
@@ -81,7 +78,7 @@ namespace GK {
 			}
 		}
 
-		private ShardCategory CategorizeShard(Vector2 impactPos, float radius, IList<Vector2> polygon) {
+		private static ShardCategory CategorizeShard(Vector2 impactPos, float radius, IList<Vector2> polygon) {
 			if (polygon == null || polygon.Count < 3 || radius <= 0f) {
 				return ShardCategory.Outside;
 			}
@@ -217,24 +214,16 @@ namespace GK {
 			return mean + stddev * randStdNormal;
 		}
 
-		Vector2[] GenerateImpactSites(Vector2 center, float impactRadius, float forceT) {
-			var sites = new List<Vector2>();
-
-			int centerCount  = Mathf.RoundToInt(Mathf.Lerp(MinCenterSeeds,  MaxCenterSeeds,  forceT));
-			int bandCount    = Mathf.RoundToInt(Mathf.Lerp(MinBandSeeds,    MaxBandSeeds,    forceT));
-			int supportCount = Mathf.RoundToInt(Mathf.Lerp(MinSupportSeeds, MaxSupportSeeds, forceT));
-			int outerCount   = Mathf.RoundToInt(Mathf.Lerp(MinOuterSeeds,   MaxOuterSeeds,   forceT));
-
-			// More seeds near the center, fewer further away.
-			AddRing(sites, center, impactRadius * 0.20f, centerCount,  impactRadius * 0.02f);
-			AddRing(sites, center, impactRadius * 0.55f, bandCount,    impactRadius * 0.04f);
-			AddRing(sites, center, impactRadius * 1.00f, supportCount, impactRadius * 0.06f);
-			AddRing(sites, center, impactRadius * 1.50f, outerCount,   impactRadius * 0.08f);
-
-			// Always include exact impact point as a seed.
-			sites.Add(center);
-
-			return sites.ToArray();
+		Vector2[] GenerateImpactSites(Vector2 center) {
+			return ImpactSiteGenerator.GenerateStraussImpactSites(
+				center,
+				SeedCount,
+				ObservationRadius,
+				HardCoreDistance,
+				StraussGamma,
+				StraussMcmcSweeps,
+				StraussIncludeImpactCenter
+			);
 		}
 
 		static void AddRing(List<Vector2> sites, Vector2 center, float radius, int count, float jitter) {
@@ -267,7 +256,7 @@ namespace GK {
 
 				var calc = new VoronoiCalculator();
 				var clip = new VoronoiClipper();
-				var sites = GenerateImpactSites(position, dynamicImpactRadius, t);
+				var sites = GenerateImpactSites(position);
 
 				var diagram = calc.CalculateDiagram(sites);
 
@@ -305,7 +294,6 @@ namespace GK {
 
 					processedCellCount++;
 					var category = CategorizeShard(position, dynamicImpactRadius, clipped);
-					Debug.Log($"Cell {i}: area={childArea:F4}, verts={clipped.Count}, category={category}");
 
 					switch (category) {
 						case ShardCategory.Inside:
@@ -499,8 +487,6 @@ namespace GK {
 				tris.Add(si + 3);
 				generatedWallCount++;
 			}
-
-			Debug.Log($"MeshFromPolygon category={category}, edges={count}, walls={generatedWallCount}");
 
 			var mesh = new Mesh();
 
