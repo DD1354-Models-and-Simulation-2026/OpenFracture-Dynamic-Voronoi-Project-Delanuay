@@ -298,7 +298,7 @@ namespace GK
             switch (seedPattern)
             {
                 case SeedPattern.StraussProcess:
-                    return GenerateStraussProcessSites(position, radius);
+                    return GenerateStraussProcessSites(position);
 
                 case SeedPattern.RadialScatter:
                     return GenerateRadialScatterSites(position, radius);
@@ -343,179 +343,17 @@ namespace GK
             return sites;
         }
 
-        private Vector2[] GenerateStraussProcessSites(Vector2 center, float impactRadius)
+        private Vector2[] GenerateStraussProcessSites(Vector2 center)
         {
-			float observationRadius = Mathf.Max(ObservationRadius, 0.01f);
-			int targetCount = Mathf.Max(1, StraussTargetSeedCount);
-
-			var hppSites = GenerateHppSites(center, observationRadius, targetCount);
-
-			float hardCoreDistance = Mathf.Max(0f, HardCoreDistance);
-			var mhcpSites = ApplyMatternHardCore(hppSites, hardCoreDistance);
-
-			float gamma = Mathf.Clamp01(StraussGamma);
-			RunStraussMcmc(mhcpSites, center, observationRadius, hardCoreDistance, gamma, StraussMcmcSweeps);
-
-			if (StraussIncludeImpactCenter) {
-				mhcpSites.Add(center);
-			}
-
-			Debug.Log($"[StraussProcess] Seeds created: {mhcpSites.Count}");
-			return mhcpSites.ToArray();
-        }
-
-        private static List<Vector2> GenerateHppSites(Vector2 center, float radius, int targetCount)
-        {
-            float area = Mathf.PI * radius * radius;
-            float lambda = targetCount / area;
-            int hppCount = SamplePoisson(lambda * area);
-
-            var hppSites = new List<Vector2>(Mathf.Max(1, hppCount));
-            for (int i = 0; i < hppCount; i++)
-            {
-                hppSites.Add(RandomPointInDisk(center, radius));
-            }
-
-            return hppSites;
-        }
-
-        private static int SamplePoisson(float mean)
-        {
-            if (mean <= 0f)
-            {
-                return 0;
-            }
-
-            float l = Mathf.Exp(-mean);
-            int k = 0;
-            float p = 1f;
-
-            do
-            {
-                k++;
-                p *= Random.value;
-            } while (p > l);
-
-            return k - 1;
-        }
-
-        private static Vector2 RandomPointInDisk(Vector2 center, float radius)
-        {
-            float angle = Random.value * Mathf.PI * 2f;
-            float radial = radius * Mathf.Sqrt(Random.value);
-
-            return center + new Vector2(
-                Mathf.Cos(angle) * radial,
-                Mathf.Sin(angle) * radial
-            );
-        }
-
-        private static List<Vector2> ApplyMatternHardCore(List<Vector2> points, float hardCoreDistance)
-        {
-            if (points == null || points.Count == 0 || hardCoreDistance <= 0f)
-            {
-                return points == null ? new List<Vector2>() : new List<Vector2>(points);
-            }
-
-            var filtered = new List<Vector2>(points);
-            float hardCoreSq = hardCoreDistance * hardCoreDistance;
-
-            int maxRemovals = filtered.Count;
-            for (int removal = 0; removal < maxRemovals; removal++)
-            {
-                if (!TryFindConflictPair(filtered, hardCoreSq, out int i, out int j))
-                {
-                    break;
-                }
-
-                int removeIndex = (Random.value < 0.5f) ? i : j;
-                filtered.RemoveAt(removeIndex);
-            }
-
-            return filtered;
-        }
-
-        private static bool TryFindConflictPair(List<Vector2> points, float distanceSq, out int first, out int second)
-        {
-            first = -1;
-            second = -1;
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                for (int j = i + 1; j < points.Count; j++)
-                {
-                    if ((points[i] - points[j]).sqrMagnitude < distanceSq)
-                    {
-                        first = i;
-                        second = j;
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private static void RunStraussMcmc(List<Vector2> points, Vector2 center, float radius, float hardCoreDistance, float gamma, int sweeps)
-        {
-            if (points == null || points.Count <= 1 || sweeps <= 0)
-            {
-                return;
-            }
-
-            float hardCoreSq = hardCoreDistance * hardCoreDistance;
-            gamma = Mathf.Clamp01(gamma);
-            int moves = points.Count * sweeps;
-
-            for (int step = 0; step < moves; step++)
-            {
-                int idx = Random.Range(0, points.Count);
-                Vector2 oldPoint = points[idx];
-                Vector2 proposal = RandomPointInDisk(center, radius);
-
-                int oldNeighbors = CountNeighborsWithin(points, idx, oldPoint, hardCoreSq);
-                int newNeighbors = CountNeighborsWithin(points, idx, proposal, hardCoreSq);
-
-                bool accept;
-                if (gamma <= 0f)
-                {
-                    accept = newNeighbors == 0;
-                }
-                else if (gamma >= 1f)
-                {
-                    accept = true;
-                }
-                else
-                {
-                    float ratio = Mathf.Pow(gamma, newNeighbors - oldNeighbors);
-                    accept = ratio >= 1f || Random.value < ratio;
-                }
-
-                if (accept)
-                {
-                    points[idx] = proposal;
-                }
-            }
-        }
-
-        private static int CountNeighborsWithin(List<Vector2> points, int skipIndex, Vector2 p, float distanceSq)
-        {
-            int count = 0;
-
-            for (int i = 0; i < points.Count; i++)
-            {
-                if (i == skipIndex)
-                {
-                    continue;
-                }
-
-                if ((points[i] - p).sqrMagnitude <= distanceSq)
-                {
-                    count++;
-                }
-            }
-
-            return count;
+			return ImpactSiteGenerator.GenerateStraussImpactSites(
+				center,
+				StraussTargetSeedCount,
+				ObservationRadius,
+				HardCoreDistance,
+				StraussGamma,
+				StraussMcmcSweeps,
+				StraussIncludeImpactCenter
+			);
         }
 
         private static float NormalizedRandom(float mean, float stddev)
