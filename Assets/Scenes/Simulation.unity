@@ -340,12 +340,18 @@ MonoBehaviour:
   drawCells: 1
   cellColor: {r: 0, g: 1, b: 1, a: 1}
   cellLineWidth: 0.0075
-  seedPattern: 0
+  seedPattern: 2
   seedJitterFactor: 0.2
   radialMean: 0.9
   radialStdDev: 0.45
   radialMinFactor: 0.15
   radialMaxFactor: 2.25
+  StraussTargetSeedCount: 100
+  StraussGamma: 0.2
+  HardCoreDistance: 0.15
+  ObservationRadius: 2
+  StraussMcmcSweeps: 30
+  StraussIncludeImpactCenter: 0
   minImpactToPaint: 0
   minAgeFrames: 2
   surfaceOffset: 0.002
@@ -366,6 +372,15 @@ MonoBehaviour:
   MinBreakArea: 0.01
   MinImpactToBreak: 50
   ImpactRadius: 0.5
+  MaxImpactForce: 300
+  MinImpactRadius: 0.2
+  MaxImpactRadius: 1.2
+  SeedCount: 32
+  StraussGamma: 0.45
+  HardCoreDistance: 0.15
+  ObservationRadius: 0.75
+  StraussMcmcSweeps: 6
+  StraussIncludeImpactCenter: 1
 --- !u!1001 &1180939408
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -566,6 +581,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
+      propertyPath: SeedCount
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
       propertyPath: ImpactRadius
       value: 0.69
       objectReference: {fileID: 0}
@@ -576,6 +596,36 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
+      propertyPath: StraussGamma
+      value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: MaxImpactForce
+      value: 300
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: MaxImpactRadius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: MinImpactRadius
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: InnerEdgeMaterial
+      value: 
+      objectReference: {fileID: 2100000, guid: 1fb4c1ea7064d4bc8b2d4628e7765c8e, type: 2}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: ObservationRadius
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
       propertyPath: impactRadiusLogScale
       value: 3.5
       objectReference: {fileID: 0}
@@ -583,6 +633,16 @@ PrefabInstance:
         type: 3}
       propertyPath: ShowImpactRadiusDebug
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: StraussIncludeImpactCenter
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: StraussObservationRadiusFactor
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 6915293009434816179, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
@@ -751,7 +811,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GK.Shoot
   Projectile: {fileID: 1269030127558644, guid: 20f9c13342ed44fda9d60de30bbb50cc, type: 3}
   MinDelay: 0.25
-  InitialSpeed: 20
+  InitialSpeed: 40
   SpawnLocation: {fileID: 1673685776}
 --- !u!114 &1724925163
 MonoBehaviour:
@@ -805,7 +865,7 @@ Transform:
   m_GameObject: {fileID: 1724925161}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 2, z: -4}
+  m_LocalPosition: {x: -2, y: 2, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

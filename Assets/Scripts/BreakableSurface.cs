@@ -455,7 +455,6 @@ namespace GK {
 
 					processedCellCount++;
 					var category = CategorizeShard(position, dynamicImpactRadius, clipped);
-					Debug.Log($"Cell {i}: area={childArea:F4}, verts={clipped.Count}, category={category}");
 
 					switch (category) {
 						case ShardCategory.Inside:
@@ -649,8 +648,6 @@ namespace GK {
 				tris.Add(si + 3);
 				generatedWallCount++;
 			}
-
-			Debug.Log($"MeshFromPolygon category={category}, edges={count}, walls={generatedWallCount}");
 
 			var mesh = new Mesh();
 
