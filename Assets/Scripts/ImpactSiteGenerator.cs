@@ -5,14 +5,17 @@ namespace GK
 {
     public static class ImpactSiteGenerator
     {
+        private const float FinalSafetyDistance = 0.001f;
+        private const double PoissonStep = 500.0;
+        private static readonly double PoissonStepExp = System.Math.Exp(PoissonStep);
+
         public static Vector2[] GenerateStraussImpactSites(
             Vector2 center,
             int targetCount,
             float observationRadius,
             float hardCoreDistance,
             float gamma,
-            int sweeps,
-            bool includeImpactCenter)
+            int sweeps)
         {
             float clampedObservationRadius = Mathf.Max(observationRadius, 0.01f);
             int clampedTargetCount = Mathf.Max(1, targetCount);
@@ -31,10 +34,9 @@ namespace GK
                 sweeps
             );
 
-            if (includeImpactCenter)
-            {
-                mhcpSites.Add(center);
-            }
+            // Safety cleanup pass to enforce minimum final spacing.
+            float finalDistance = Mathf.Max(clampedHardCoreDistance, FinalSafetyDistance);
+            mhcpSites = ApplyMatternHardCore(mhcpSites, finalDistance);
 
             Debug.Log($"Strauss Seeds created: {mhcpSites.Count}");
 
@@ -56,6 +58,8 @@ namespace GK
             return hppSites;
         }
 
+        // "Junhao, based on Knuth. For double precision floating point format the threshold is near e700, so 500 should be a safe STEP."
+
         private static int SamplePoisson(float mean)
         {
             if (mean <= 0f)
@@ -63,15 +67,29 @@ namespace GK
                 return 0;
             }
 
-            float l = Mathf.Exp(-mean);
+            double lambdaLeft = mean;
             int k = 0;
-            float p = 1f;
+            double product = 1.0;
 
             do
             {
                 k++;
-                p *= Random.value;
-            } while (p > l);
+                product *= Random.value;
+
+                while (product < 1.0 && lambdaLeft > 0.0)
+                {
+                    if (lambdaLeft > PoissonStep)
+                    {
+                        product *= PoissonStepExp;
+                        lambdaLeft -= PoissonStep;
+                    }
+                    else
+                    {
+                        product *= System.Math.Exp(lambdaLeft);
+                        lambdaLeft = 0.0;
+                    }
+                }
+            } while (product > 1.0);
 
             return k - 1;
         }
