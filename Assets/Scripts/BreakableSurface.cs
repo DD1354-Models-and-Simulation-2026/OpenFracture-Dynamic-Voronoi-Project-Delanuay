@@ -206,16 +206,6 @@ namespace GK {
 			}
 		}
 
-		static float NormalizedRandom(float mean, float stddev) {
-			var u1 = UnityEngine.Random.value;
-			var u2 = UnityEngine.Random.value;
-
-			var randStdNormal = Mathf.Sqrt(-2.0f * Mathf.Log(u1)) *
-				Mathf.Sin(2.0f * Mathf.PI * u2);
-
-			return mean + stddev * randStdNormal;
-		}
-
 		Vector2[] GenerateImpactSites(Vector2 center) {
 			return ImpactSiteGenerator.GenerateStraussImpactSites(
 				center,
