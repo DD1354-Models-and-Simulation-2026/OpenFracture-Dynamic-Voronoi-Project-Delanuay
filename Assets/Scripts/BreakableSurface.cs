@@ -27,7 +27,7 @@ using UnityEngine;
 namespace GK {
 	public class BreakableSurface : MonoBehaviour {
 		const float BoundaryEpsilon = 0.0001f;
-
+		private Evaluator evaluator;
 		public MeshFilter Filter     { get; private set; }
 		public MeshRenderer Renderer { get; private set; }
 		public MeshCollider Collider { get; private set; }
@@ -57,6 +57,12 @@ namespace GK {
 				Polygon = polygon;
 				Category = category;
 			}
+		}
+
+		void Awake()
+		{
+			evaluator = GetComponent<Evaluator>();
+			Debug.Log($"Awake: {name} | instanceID={GetInstanceID()} | evaluator? {GetComponent<Evaluator>() != null}");
 		}
 
 		private ShardCategory CategorizeShard(Vector2 impactPos, float radius, IList<Vector2> polygon) {
@@ -232,7 +238,13 @@ namespace GK {
 			if (area > MinBreakArea) {
 				Debug.Log($"[Break] Impact at {position}, ImpactRadius={ImpactRadius}, Area={area:F3}");
 				var outerPolygon = new List<Vector2>(Polygon);
-
+				if (evaluator != null)
+				{
+					Debug.Log($"Break: {name} | instanceID={GetInstanceID()} | evaluator? {GetComponent<Evaluator>() != null}");
+					Vector3 worldPoint = transform.TransformPoint(position);
+					evaluator.OnFractureStart(Collider, gameObject, worldPoint);
+					Debug.Log($"Break: {name} | instanceID={GetInstanceID()} | evaluator? {GetComponent<Evaluator>() != null}");
+				}
 				var calc = new VoronoiCalculator();
 				var clip = new VoronoiClipper();
 				var sites = GenerateImpactSites(position, ImpactRadius);
@@ -315,7 +327,10 @@ namespace GK {
 				Debug.Log($"[Step 6] Fragments by category: {insideFragmentCount} Inside, {outsideFragmentCount} Outside, {mixedFragmentCount} Mixed");
 				Debug.Log($"[Step 8] Remaining sheet merged from {remainingPieces.Count} attached cells");
 				Debug.Log($"Cells summary: processed={processedCellCount}, empty={emptyCellCount}, tooSmall={tooSmallCellCount}");
-
+				if (evaluator != null)
+				{
+					evaluator.OnFractureComplete();
+				}
 				Destroy(gameObject);
 			}
 		}

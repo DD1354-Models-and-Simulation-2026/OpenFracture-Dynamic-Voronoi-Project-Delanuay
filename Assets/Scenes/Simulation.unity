@@ -225,6 +225,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Walls OpenFracture
       objectReference: {fileID: 0}
+    - target: {fileID: 1156149676792325787, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4186689460252452167, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: m_IsActive
@@ -309,7 +314,59 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2095715954}
+    - targetCorrespondingSourceObject: {fileID: 2930068698099705219, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2095715960}
   m_SourcePrefab: {fileID: 100100000, guid: c0234fbfd5593cc4294bc36f20231c12, type: 3}
+--- !u!1 &655862750 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2930068698099705219, guid: c0234fbfd5593cc4294bc36f20231c12,
+    type: 3}
+  m_PrefabInstance: {fileID: 1259153147}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &655862757
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 655862750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e47d342125220644b66c59cc8a018e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Evaluator
+--- !u!1 &870273987 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8159886891937714933, guid: c0234fbfd5593cc4294bc36f20231c12,
+    type: 3}
+  m_PrefabInstance: {fileID: 1259153147}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &870273991 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+    type: 3}
+  m_PrefabInstance: {fileID: 1259153147}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 870273987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 71bcc7f41880346acb0bdecf6340f3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &870273994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 870273987}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e47d342125220644b66c59cc8a018e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Evaluator
 --- !u!1 &890847916 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8159886891937714933, guid: c0234fbfd5593cc4294bc36f20231c12,
@@ -340,7 +397,7 @@ MonoBehaviour:
   drawCells: 1
   cellColor: {r: 0, g: 1, b: 1, a: 1}
   cellLineWidth: 0.0075
-  seedPattern: 0
+  seedPattern: 1
   seedJitterFactor: 0.2
   radialMean: 0.9
   radialStdDev: 0.45
@@ -564,6 +621,71 @@ PrefabInstance:
       propertyPath: ShowImpactRadiusDebug
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakStart.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakStart.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 870273991}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakStart.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 870273991}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakStart.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: TestBreakStart
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: TestBreakComplete
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakStart.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GK.BreakableSurface, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: GK.BreakableSurface, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakStart.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5445412840310994328, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      propertyPath: onBreakCompleted.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6412815413639985450, guid: c0234fbfd5593cc4294bc36f20231c12,
         type: 3}
       propertyPath: ImpactRadius
@@ -637,7 +759,15 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 8159886891937714933, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 870273994}
+    - targetCorrespondingSourceObject: {fileID: 2930068698099705219, guid: c0234fbfd5593cc4294bc36f20231c12,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 655862757}
   m_SourcePrefab: {fileID: 100100000, guid: c0234fbfd5593cc4294bc36f20231c12, type: 3}
 --- !u!1 &1273744337 stripped
 GameObject:
@@ -969,11 +1099,47 @@ MonoBehaviour:
   callbackOptions:
     onFracture:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 2095715960}
+          m_TargetAssemblyTypeName: Evaluator, Assembly-CSharp
+          m_MethodName: OnFractureStart
+          m_Mode: 0
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
     onCompleted:
       m_PersistentCalls:
-        m_Calls: []
+        m_Calls:
+        - m_Target: {fileID: 2095715960}
+          m_TargetAssemblyTypeName: Evaluator, Assembly-CSharp
+          m_MethodName: OnFractureComplete
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
   currentRefractureCount: 0
+--- !u!114 &2095715960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2095715947}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e47d342125220644b66c59cc8a018e4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Evaluator
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
